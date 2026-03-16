@@ -137,3 +137,19 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# Vagrant VMs - van en SSD externa, no en repo
+.vagrant/
+*.box
+*.vmdk
+*.vdi
+
+# Node
+node_modules/
+npm-debug.log
+
+# Archivos de entorno
+.env
+
+# OS
+.DS_Store
