@@ -1,0 +1,13 @@
+$TTL 604800
+@   IN  SOA academicaview.edu. root.academicaview.edu. (
+            2         ; Serial
+            604800    ; Refresh
+            86400     ; Retry
+            2419200   ; Expire
+            604800 )  ; Negative Cache TTL
+
+@       IN  NS  servidor1.academicaview.edu.
+
+servidor1   IN  A   192.168.100.2
+servidor2   IN  A   192.168.100.3
+www         IN  CNAME   servidor1
