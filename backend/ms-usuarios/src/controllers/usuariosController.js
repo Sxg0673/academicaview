@@ -42,8 +42,11 @@ router.post('/api/usuarios/registro', async (req, res) => {
       return res.status(400).json({ error: 'El email ya está registrado' });
     }
 
-    await usuariosModel.crearUsuario(nombre, apellido, email, password, rol || 'estudiante');
-    res.status(201).json({ mensaje: 'Usuario creado exitosamente' });
+    const result = await usuariosModel.crearUsuario(nombre, apellido, email, password, rol || 'estudiante');
+    res.status(201).json({ 
+      mensaje: 'Usuario creado exitosamente',
+      id: result.insertId
+    });
 
   } catch (error) {
     console.error('Error en registro:', error);
