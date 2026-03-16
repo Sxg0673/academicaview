@@ -26,4 +26,24 @@ async function actualizarHabitos(usuario_id, horas_estudio, promedio_previo, hor
   return result;
 }
 
-module.exports = { obtenerTodos, obtenerPorUsuarioId, actualizarHabitos };
+async function crearEstudiante(usuario_id, nombre, apellido, email, horas_estudio, promedio_previo, horas_sueno, modalidad, asistencia, uso_redes, puntaje_estimado) {
+  const [result] = await db.query(
+    `INSERT INTO estudiantes 
+     (usuario_id, nombre, apellido, email, horas_estudio, promedio_previo, 
+      horas_sueno, modalidad, asistencia, uso_redes, puntaje_estimado) 
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [usuario_id, nombre, apellido, email, horas_estudio, promedio_previo,
+     horas_sueno, modalidad, asistencia, uso_redes, puntaje_estimado]
+  );
+  return result;
+}
+
+async function asignarPuntajeReal(id, puntaje_real) {
+  const [result] = await db.query(
+    'UPDATE estudiantes SET puntaje_real = ? WHERE id = ?',
+    [puntaje_real, id]
+  );
+  return result;
+}
+
+module.exports = { obtenerTodos, obtenerPorUsuarioId, actualizarHabitos, crearEstudiante, asignarPuntajeReal };
