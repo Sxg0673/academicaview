@@ -48,7 +48,7 @@
         const data = await res.json();
 
         if (res.ok) {
-          localStorage.setItem('usuario', JSON.stringify(data.usuario));
+          sessionStorage.setItem('usuario', JSON.stringify(data.usuario));
           if (data.usuario.rol === 'profesor') {
             window.location.href = 'dashboard-profesor.html';
           } else {
