@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AcadémicaView - Estudiante</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-light">
+  <nav class="navbar navbar-dark bg-primary">
+    <div class="container">
+      <span class="navbar-brand">AcadémicaView</span>
+      <span class="text-white" id="nombre-usuario"></span>
+      <button class="btn btn-outline-light btn-sm" onclick="logout()">Cerrar sesión</button>
+    </div>
+  </nav>
+
+  <div class="container mt-4">
+
+    <!-- Puntajes -->
+    <div class="row mb-4">
+      <div class="col-md-4">
+        <div class="card text-center shadow-sm">
+          <div class="card-body">
+            <h6 class="text-muted">Puntaje Real</h6>
+            <h2 id="puntaje-real">--</h2>
+            <small id="puntaje-real-nota" class="text-muted"></small>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card text-center shadow-sm">
+          <div class="card-body">
+            <h6 class="text-muted">Puntaje Estimado por Modelo</h6>
+            <h2 class="text-success" id="puntaje-estimado">--</h2>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card text-center shadow-sm">
+          <div class="card-body">
+            <h6 class="text-muted">Promedio del Curso</h6>
+            <h2 class="text-warning" id="promedio-curso">--</h2>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row mb-4">
+      <!-- Formulario de hábitos -->
+      <div class="col-md-6">
+        <div class="card shadow-sm">
+          <div class="card-header">Mis Hábitos Académicos
+            <button class="btn btn-sm btn-outline-primary float-end" onclick="toggleEditar()">Editar</button>
+          </div>
+          <div class="card-body">
+            <!-- Vista -->
+            <div id="vista-habitos">
+              <table class="table table-sm">
+                <tbody>
+                  <tr><td>Horas de estudio</td><td id="h-estudio">--</td></tr>
+                  <tr><td>Promedio previo</td><td id="h-promedio">--</td></tr>
+                  <tr><td>Horas de sueño</td><td id="h-sueno">--</td></tr>
+                  <tr><td>Asistencia</td><td id="h-asistencia">--</td></tr>
+                  <tr><td>Uso de redes</td><td id="h-redes">--</td></tr>
+                  <tr><td>Modalidad</td><td id="h-modalidad">--</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <!-- Formulario edición -->
+            <div id="form-habitos" class="d-none">
+              <div class="mb-2">
+                <label class="form-label small">Horas de estudio por semana</label>
+                <input type="number" class="form-control form-control-sm" id="edit-estudio" step="0.1">
+              </div>
+              <div class="mb-2">
+                <label class="form-label small">Promedio académico previo (0-10)</label>
+                <input type="number" class="form-control form-control-sm" id="edit-promedio" step="0.1" min="0" max="10">
+              </div>
+              <div class="mb-2">
+                <label class="form-label small">Horas de sueño por noche</label>
+                <input type="number" class="form-control form-control-sm" id="edit-sueno" step="0.1">
+              </div>
+              <div class="mb-2">
+                <label class="form-label small">Porcentaje de asistencia (%)</label>
+                <input type="number" class="form-control form-control-sm" id="edit-asistencia" step="0.1" min="0" max="100">
+              </div>
+              <div class="mb-2">
+                <label class="form-label small">Horas diarias en redes sociales</label>
+                <input type="number" class="form-control form-control-sm" id="edit-redes" step="0.1">
+              </div>
+              <div class="mb-2">
+                <label class="form-label small">Modalidad</label>
+                <select class="form-select form-select-sm" id="edit-modalidad">
+                  <option value="Presencial">Presencial</option>
+                  <option value="Virtual">Virtual</option>
+                </select>
+              </div>
+              <button class="btn btn-primary btn-sm w-100" onclick="guardarHabitos()">Guardar</button>
+              <div id="msg-habitos" class="mt-2"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gráfica comparativa -->
+      <div class="col-md-6">
+        <div class="card shadow-sm">
+          <div class="card-header">Comparativa con el Curso</div>
+          <div class="card-body">
+            <canvas id="grafica-comparativa"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script>
+    const usuario = JSON.parse(localStorage.getItem('usuario'));
+    if (!usuario || usuario.rol !== 'estudiante') {
+      window.location.href = 'login.html';
+    }
+
+    document.getElementById('nombre-usuario').textContent = `${usuario.nombre} ${usuario.apellido}`;
+
+    let graficaComparativa = null;
+    let datosEstudiante = null;
+
+    function toggleEditar() {
+      const vista = document.getElementById('vista-habitos');
+      const form  = document.getElementById('form-habitos');
+      if (form.classList.contains('d-none')) {
+        form.classList.remove('d-none');
+        vista.classList.add('d-none');
+        if (datosEstudiante) {
+          document.getElementById('edit-estudio').value    = datosEstudiante.horas_estudio || '';
+          document.getElementById('edit-promedio').value   = datosEstudiante.promedio_previo || '';
+          document.getElementById('edit-sueno').value      = datosEstudiante.horas_sueno || '';
+          document.getElementById('edit-asistencia').value = datosEstudiante.asistencia || '';
+          document.getElementById('edit-redes').value      = datosEstudiante.uso_redes || '';
+          document.getElementById('edit-modalidad').value  = datosEstudiante.modalidad || 'Presencial';
+        }
+      } else {
+        form.classList.add('d-none');
+        vista.classList.remove('d-none');
+      }
+    }
+
+    async function guardarHabitos() {
+      const horas_estudio   = parseFloat(document.getElementById('edit-estudio').value);
+      const promedio_previo = parseFloat(document.getElementById('edit-promedio').value);
+      const horas_sueno     = parseFloat(document.getElementById('edit-sueno').value);
+      const asistencia      = parseFloat(document.getElementById('edit-asistencia').value);
+      const uso_redes       = parseFloat(document.getElementById('edit-redes').value);
+      const modalidad       = document.getElementById('edit-modalidad').value;
+      const msgEl           = document.getElementById('msg-habitos');
+
+      const resPred = await fetch(`${CONFIG.API_ANALITICA}/api/analitica/predecir`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ horas_estudio, promedio_previo, horas_sueno, modalidad, asistencia, uso_redes })
+      });
+      const pred = await resPred.json();
+
+      const res = await fetch(`${CONFIG.API_ESTUDIANTES}/api/estudiantes/${usuario.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ horas_estudio, promedio_previo, horas_sueno, modalidad, asistencia, uso_redes, puntaje_estimado: pred.puntaje_estimado })
+      });
+
+      if (res.ok) {
+        msgEl.innerHTML = `<div class="alert alert-success">Datos guardados. Puntaje estimado: ${pred.puntaje_estimado}</div>`;
+        setTimeout(() => { toggleEditar(); cargarDatos(); }, 1500);
+      } else {
+        msgEl.innerHTML = `<div class="alert alert-danger">Error al guardar</div>`;
+      }
+    }
+
+    async function cargarDatos() {
+      const [resEst, resStats] = await Promise.all([
+        fetch(`${CONFIG.API_ESTUDIANTES}/api/estudiantes/${usuario.id}`),
+        fetch(`${CONFIG.API_ANALITICA}/api/analitica/estadisticas`)
+      ]);
+
+      const est   = await resEst.json();
+      const stats = await resStats.json();
+      datosEstudiante = est;
+
+      const puntajeRealEl   = document.getElementById('puntaje-real');
+      const puntajeRealNota = document.getElementById('puntaje-real-nota');
+      if (est.puntaje_real) {
+        puntajeRealEl.textContent   = est.puntaje_real;
+        puntajeRealEl.className     = 'text-primary';
+        puntajeRealNota.textContent = 'Asignado por el profesor';
+      } else {
+        puntajeRealEl.textContent   = 'Pendiente';
+        puntajeRealEl.className     = 'text-secondary';
+        puntajeRealNota.textContent = 'El profesor aún no ha asignado tu puntaje';
+      }
+
+      document.getElementById('promedio-curso').textContent = stats.promedio_puntaje;
+
+      if (est.horas_estudio) {
+        document.getElementById('h-estudio').textContent   = est.horas_estudio + ' hrs';
+        document.getElementById('h-promedio').textContent  = est.promedio_previo;
+        document.getElementById('h-sueno').textContent     = est.horas_sueno + ' hrs';
+        document.getElementById('h-asistencia').textContent = est.asistencia + '%';
+        document.getElementById('h-redes').textContent     = est.uso_redes + ' hrs';
+        document.getElementById('h-modalidad').textContent = est.modalidad;
+
+        document.getElementById('puntaje-estimado').textContent = est.puntaje_estimado || '--';
+
+        if (graficaComparativa) graficaComparativa.destroy();
+        graficaComparativa = new Chart(document.getElementById('grafica-comparativa'), {
+          type: 'bar',
+          data: {
+            labels: ['Mi estimado', 'Promedio curso', 'Máximo curso'],
+            datasets: [{
+              label: 'Puntaje',
+              data: [est.puntaje_estimado, stats.promedio_puntaje, stats.puntaje_maximo],
+              backgroundColor: ['#0d6efd', '#ffc107', '#198754']
+            }]
+          },
+          options: { plugins: { legend: { display: false } } }
+        });
+      } else {
+        document.getElementById('h-estudio').textContent    = 'Sin datos';
+        document.getElementById('h-promedio').textContent   = 'Sin datos';
+        document.getElementById('h-sueno').textContent      = 'Sin datos';
+        document.getElementById('h-asistencia').textContent = 'Sin datos';
+        document.getElementById('h-redes').textContent      = 'Sin datos';
+        document.getElementById('h-modalidad').textContent  = 'Sin datos';
+        document.getElementById('puntaje-estimado').textContent = 'Ingresa tus hábitos para ver tu estimado';
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem('usuario');
+      window.location.href = 'login.html';
+    }
+
+    cargarDatos();
+  </script>
+</body>
+</html>

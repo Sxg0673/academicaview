@@ -43,9 +43,12 @@ router.post('/api/usuarios/registro', async (req, res) => {
     }
 
     const result = await usuariosModel.crearUsuario(nombre, apellido, email, password, rol || 'estudiante');
-    res.status(201).json({ 
+    res.status(201).json({
       mensaje: 'Usuario creado exitosamente',
-      id: result.insertId
+      id: result.insertId,
+      nombre,
+      apellido,
+      email
     });
 
   } catch (error) {
