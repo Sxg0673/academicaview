@@ -138,7 +138,7 @@
 
   <script src="config.js"></script>
   <script>
-    const usuario = JSON.parse(localStorage.getItem('usuario'));
+    const usuario = JSON.parse(sessionStorage.getItem('usuario'));
     if (!usuario || usuario.rol !== 'profesor') {
       window.location.href = 'login.html';
     }
@@ -291,7 +291,7 @@
     }
 
     function logout() {
-      localStorage.removeItem('usuario');
+      sessionStorage.removeItem('usuario');
       window.location.href = 'login.html';
     }
 
