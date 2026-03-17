@@ -28,7 +28,19 @@ router.get('/api/estudiantes/:usuario_id', async (req, res) => {
   }
 });
 
-// PUT /api/estudiantes/:usuario_id - actualizar habitos
+// POST /api/estudiantes - crear registro vacio (cuando profesor registra estudiante)
+router.post('/api/estudiantes', async (req, res) => {
+  try {
+    const { usuario_id, nombre, apellido, email } = req.body;
+    await estudiantesModel.crearEstudianteVacio(usuario_id, nombre, apellido, email);
+    res.status(201).json({ mensaje: 'Registro de estudiante creado correctamente' });
+  } catch (error) {
+    console.error('Error al crear estudiante:', error);
+    res.status(500).json({ error: 'Error del servidor' });
+  }
+});
+
+// PUT /api/estudiantes/:usuario_id - estudiante actualiza sus habitos
 router.put('/api/estudiantes/:usuario_id', async (req, res) => {
   try {
     const { usuario_id } = req.params;
@@ -45,25 +57,7 @@ router.put('/api/estudiantes/:usuario_id', async (req, res) => {
   }
 });
 
-// POST /api/estudiantes - crear estudiante (solo profesor)
-router.post('/api/estudiantes', async (req, res) => {
-  try {
-    const { usuario_id, nombre, apellido, email, horas_estudio,
-            promedio_previo, horas_sueno, modalidad, asistencia,
-            uso_redes, puntaje_estimado } = req.body;
-    await estudiantesModel.crearEstudiante(
-      usuario_id, nombre, apellido, email, horas_estudio,
-      promedio_previo, horas_sueno, modalidad, asistencia,
-      uso_redes, puntaje_estimado
-    );
-    res.status(201).json({ mensaje: 'Estudiante creado correctamente' });
-  } catch (error) {
-    console.error('Error al crear estudiante:', error);
-    res.status(500).json({ error: 'Error del servidor' });
-  }
-});
-
-// PUT /api/estudiantes/:id/puntaje - asignar puntaje real (solo profesor)
+// PUT /api/estudiantes/:id/puntaje - profesor asigna puntaje real
 router.put('/api/estudiantes/:id/puntaje', async (req, res) => {
   try {
     const { id } = req.params;

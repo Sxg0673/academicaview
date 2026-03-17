@@ -15,6 +15,15 @@ async function obtenerPorUsuarioId(usuario_id) {
   return rows[0];
 }
 
+async function crearEstudianteVacio(usuario_id, nombre, apellido, email) {
+  const [result] = await db.query(
+    `INSERT INTO estudiantes (usuario_id, nombre, apellido, email) 
+     VALUES (?, ?, ?, ?)`,
+    [usuario_id, nombre, apellido, email]
+  );
+  return result;
+}
+
 async function actualizarHabitos(usuario_id, horas_estudio, promedio_previo, horas_sueno, modalidad, asistencia, uso_redes, puntaje_estimado) {
   const [result] = await db.query(
     `UPDATE estudiantes 
@@ -22,18 +31,6 @@ async function actualizarHabitos(usuario_id, horas_estudio, promedio_previo, hor
          modalidad = ?, asistencia = ?, uso_redes = ?, puntaje_estimado = ?
      WHERE usuario_id = ?`,
     [horas_estudio, promedio_previo, horas_sueno, modalidad, asistencia, uso_redes, puntaje_estimado, usuario_id]
-  );
-  return result;
-}
-
-async function crearEstudiante(usuario_id, nombre, apellido, email, horas_estudio, promedio_previo, horas_sueno, modalidad, asistencia, uso_redes, puntaje_estimado) {
-  const [result] = await db.query(
-    `INSERT INTO estudiantes 
-     (usuario_id, nombre, apellido, email, horas_estudio, promedio_previo, 
-      horas_sueno, modalidad, asistencia, uso_redes, puntaje_estimado) 
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [usuario_id, nombre, apellido, email, horas_estudio, promedio_previo,
-     horas_sueno, modalidad, asistencia, uso_redes, puntaje_estimado]
   );
   return result;
 }
@@ -46,4 +43,4 @@ async function asignarPuntajeReal(id, puntaje_real) {
   return result;
 }
 
-module.exports = { obtenerTodos, obtenerPorUsuarioId, actualizarHabitos, crearEstudiante, asignarPuntajeReal };
+module.exports = { obtenerTodos, obtenerPorUsuarioId, crearEstudianteVacio, actualizarHabitos, asignarPuntajeReal };

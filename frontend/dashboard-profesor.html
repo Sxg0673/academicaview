@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AcadémicaView - Profesor</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    .chart-container { position: relative; height: 220px; }
+  </style>
+</head>
+<body class="bg-light">
+  <nav class="navbar navbar-dark bg-success">
+    <div class="container">
+      <span class="navbar-brand">AcadémicaView — Panel Profesor</span>
+      <button class="btn btn-outline-light btn-sm" onclick="logout()">Cerrar sesión</button>
+    </div>
+  </nav>
+
+  <div class="container mt-4">
+
+    <div class="row mb-4">
+      <div class="col-md-3">
+        <div class="card text-center shadow-sm">
+          <div class="card-body">
+            <h6 class="text-muted">Total Estudiantes</h6>
+            <h2 class="text-primary" id="total">--</h2>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card text-center shadow-sm">
+          <div class="card-body">
+            <h6 class="text-muted">Promedio Puntaje</h6>
+            <h2 class="text-success" id="promedio">--</h2>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card text-center shadow-sm">
+          <div class="card-body">
+            <h6 class="text-muted">Puntaje Máximo</h6>
+            <h2 class="text-warning" id="maximo">--</h2>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card text-center shadow-sm">
+          <div class="card-body">
+            <h6 class="text-muted">Puntaje Mínimo</h6>
+            <h2 class="text-danger" id="minimo">--</h2>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row mb-4">
+      <div class="col-md-4">
+        <div class="card shadow-sm">
+          <div class="card-header">Distribución de Puntajes</div>
+          <div class="card-body">
+            <div class="chart-container">
+              <canvas id="grafica-distribucion"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card shadow-sm">
+          <div class="card-header">Promedios de Hábitos (horas)</div>
+          <div class="card-body">
+            <div class="chart-container">
+              <canvas id="grafica-habitos"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card shadow-sm">
+          <div class="card-header">Promedio de Asistencia (%)</div>
+          <div class="card-body">
+            <div class="chart-container">
+              <canvas id="grafica-asistencia"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-success text-white">Agregar Estudiante</div>
+      <div class="card-body">
+        <div class="row g-2">
+          <div class="col-md-3">
+            <input class="form-control form-control-sm" id="nuevo-nombre" placeholder="Nombre">
+          </div>
+          <div class="col-md-3">
+            <input class="form-control form-control-sm" id="nuevo-apellido" placeholder="Apellido">
+          </div>
+          <div class="col-md-3">
+            <input class="form-control form-control-sm" id="nuevo-email" placeholder="Email">
+          </div>
+          <div class="col-md-2">
+            <input class="form-control form-control-sm" id="nuevo-password" placeholder="Contraseña" type="password">
+          </div>
+          <div class="col-md-1">
+            <button class="btn btn-success btn-sm w-100" onclick="crearEstudiante()">Agregar</button>
+          </div>
+        </div>
+        <div id="msg-crear" class="mt-2"></div>
+      </div>
+    </div>
+
+    <div class="card shadow-sm">
+      <div class="card-header">Lista de Estudiantes</div>
+      <div class="card-body">
+        <table class="table table-striped table-sm">
+          <thead class="table-dark">
+            <tr>
+              <th>Nombre</th>
+              <th>Email</th>
+              <th>Hrs Estudio</th>
+              <th>Asistencia</th>
+              <th>Uso Redes</th>
+              <th>Modalidad</th>
+              <th>Puntaje Estimado</th>
+              <th>Puntaje Real</th>
+              <th>Asignar Puntaje</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-estudiantes"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="config.js"></script>
+  <script>
+    const usuario = JSON.parse(localStorage.getItem('usuario'));
+    if (!usuario || usuario.rol !== 'profesor') {
+      window.location.href = 'login.html';
+    }
+
+    let graficaDistribucion = null;
+    let graficaHabitos = null;
+    let graficaAsistencia = null;
+
+    async function cargarDatos() {
+      const [resStats, resDist, resEst] = await Promise.all([
+        fetch(`${CONFIG.API_ANALITICA}/api/analitica/estadisticas`),
+        fetch(`${CONFIG.API_ANALITICA}/api/analitica/distribucion`),
+        fetch(`${CONFIG.API_ESTUDIANTES}/api/estudiantes`)
+      ]);
+
+      const stats = await resStats.json();
+      const dist  = await resDist.json();
+      const ests  = await resEst.json();
+
+      document.getElementById('total').textContent    = stats.total_estudiantes;
+      document.getElementById('promedio').textContent = stats.promedio_puntaje;
+      document.getElementById('maximo').textContent   = stats.puntaje_maximo;
+      document.getElementById('minimo').textContent   = stats.puntaje_minimo;
+
+      if (graficaDistribucion) graficaDistribucion.destroy();
+      if (graficaHabitos) graficaHabitos.destroy();
+      if (graficaAsistencia) graficaAsistencia.destroy();
+
+      graficaDistribucion = new Chart(document.getElementById('grafica-distribucion'), {
+        type: 'bar',
+        data: {
+          labels: dist.map(d => d.rango),
+          datasets: [{ label: 'Estudiantes', data: dist.map(d => d.cantidad), backgroundColor: '#198754' }]
+        },
+        options: { maintainAspectRatio: false, plugins: { legend: { display: false } } }
+      });
+
+      graficaHabitos = new Chart(document.getElementById('grafica-habitos'), {
+        type: 'bar',
+        data: {
+          labels: ['Hrs Estudio', 'Hrs Sueño', 'Uso Redes'],
+          datasets: [{
+            label: 'Promedio horas',
+            data: [stats.promedio_horas_estudio, stats.promedio_horas_sueno, stats.promedio_uso_redes],
+            backgroundColor: ['#198754', '#0dcaf0', '#dc3545']
+          }]
+        },
+        options: { maintainAspectRatio: false, plugins: { legend: { display: false } } }
+      });
+
+      graficaAsistencia = new Chart(document.getElementById('grafica-asistencia'), {
+        type: 'doughnut',
+        data: {
+          labels: ['Asistencia', 'Ausencia'],
+          datasets: [{
+            data: [stats.promedio_asistencia, 100 - stats.promedio_asistencia],
+            backgroundColor: ['#0d6efd', '#dee2e6']
+          }]
+        },
+        options: {
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom' },
+            tooltip: {
+              callbacks: { label: ctx => `${ctx.label}: ${ctx.parsed.toFixed(1)}%` }
+            }
+          }
+        }
+      });
+
+      const tbody = document.getElementById('tabla-estudiantes');
+      tbody.innerHTML = '';
+      ests.forEach(e => {
+        tbody.innerHTML += `
+          <tr>
+            <td>${e.nombre} ${e.apellido}</td>
+            <td>${e.email}</td>
+            <td>${e.horas_estudio ? e.horas_estudio + ' hrs' : 'Sin datos'}</td>
+            <td>${e.asistencia ? e.asistencia + '%' : 'Sin datos'}</td>
+            <td>${e.uso_redes ? e.uso_redes + ' hrs' : 'Sin datos'}</td>
+            <td>${e.modalidad || 'Sin datos'}</td>
+            <td>${e.puntaje_estimado || 'Pendiente'}</td>
+            <td>${e.puntaje_real || 'Pendiente'}</td>
+            <td>
+              <div class="input-group input-group-sm">
+                <input type="number" class="form-control" id="puntaje-${e.id}" placeholder="Puntaje">
+                <button class="btn btn-warning btn-sm" onclick="asignarPuntaje(${e.id})">Asignar</button>
+              </div>
+            </td>
+          </tr>`;
+      });
+    }
+
+    async function crearEstudiante() {
+      const nombre   = document.getElementById('nuevo-nombre').value;
+      const apellido = document.getElementById('nuevo-apellido').value;
+      const email    = document.getElementById('nuevo-email').value;
+      const password = document.getElementById('nuevo-password').value;
+      const msgEl    = document.getElementById('msg-crear');
+
+      if (!nombre || !apellido || !email || !password) {
+        msgEl.innerHTML = `<div class="alert alert-warning">Completa todos los campos</div>`;
+        return;
+      }
+
+      try {
+        const resUser = await fetch(`${CONFIG.API_USUARIOS}/api/usuarios/registro`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nombre, apellido, email, password, rol: 'estudiante' })
+        });
+        const dataUser = await resUser.json();
+        if (!resUser.ok) {
+          msgEl.innerHTML = `<div class="alert alert-danger">${dataUser.error}</div>`;
+          return;
+        }
+
+        const resEst = await fetch(`${CONFIG.API_ESTUDIANTES}/api/estudiantes`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ usuario_id: dataUser.id, nombre, apellido, email })
+        });
+
+        if (resEst.ok) {
+          msgEl.innerHTML = `<div class="alert alert-success">✓ Estudiante ${nombre} ${apellido} agregado correctamente</div>`;
+          document.getElementById('nuevo-nombre').value   = '';
+          document.getElementById('nuevo-apellido').value = '';
+          document.getElementById('nuevo-email').value    = '';
+          document.getElementById('nuevo-password').value = '';
+          await cargarDatos();
+        }
+      } catch (err) {
+        msgEl.innerHTML = `<div class="alert alert-danger">Error al crear estudiante</div>`;
+      }
+    }
+
+    async function asignarPuntaje(id) {
+      const puntaje = document.getElementById(`puntaje-${id}`).value;
+      if (!puntaje) return alert('Ingresa un puntaje');
+
+      const res = await fetch(`${CONFIG.API_ESTUDIANTES}/api/estudiantes/${id}/puntaje`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ puntaje_real: parseFloat(puntaje) })
+      });
+
+      if (res.ok) {
+        await cargarDatos();
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem('usuario');
+      window.location.href = 'login.html';
+    }
+
+    // Actualización automática cada 30 segundos
+    cargarDatos();
+    setInterval(cargarDatos, 30000);
+  </script>
+</body>
+</html>
