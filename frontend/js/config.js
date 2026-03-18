@@ -1,0 +1,5 @@
+const CONFIG = {
+  API_USUARIOS:    'http://192.168.100.3:3001',
+  API_ESTUDIANTES: 'http://192.168.100.3:3002',
+  API_ANALITICA:   'http://192.168.100.3:3003'
+};
