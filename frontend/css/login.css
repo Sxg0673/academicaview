@@ -1,0 +1,150 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+body {
+    height: 100vh;
+    background: linear-gradient(135deg, #2c2c2c, #3a3a3a);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* CONTENEDOR */
+.container {
+    width: 900px;
+    height: 500px;
+    display: flex;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+}
+
+/* LADO IZQUIERDO (IMAGEN + TEXTO) */
+.left {
+    width: 50%;
+    background: url('https://img.freepik.com/foto-gratis/joven-empresario-feliz-que-tiene-videollamada-traves-computadora-casa_637285-12737.jpg?semt=ais_hybrid&w=740&q=80') no-repeat center;
+    background-size: 800px;
+    background-color: #1f1f1f;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* OVERLAY OSCURO */
+.overlay {
+    text-align: center;
+    color: #ffffff;
+    padding: 20px;
+}
+
+.overlay h1 {
+    font-size: 40px;
+    margin-bottom: 5px;
+}
+
+.overlay p {
+    color: #f7c600;
+}
+
+/* LADO DERECHO */
+.right {
+    width: 50%;
+    background: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.form-box {
+    width: 80%;
+}
+
+.form-box h2 {
+    color: #333;
+}
+
+.subtitle {
+    margin-bottom: 20px;
+    color: gray;
+}
+
+/* INPUTS */
+.input-group {
+    position: relative;
+    margin-bottom: 25px;
+}
+
+.input-group input {
+    width: 100%;
+    border: none;
+    border-bottom: 2px solid #ccc;
+    outline: none;
+    padding: 8px 0;
+}
+
+.input-group label {
+    position: absolute;
+    top: 8px;
+    left: 0;
+    color: gray;
+    transition: 0.3s;
+}
+
+/* EFECTO FLOAT */
+.input-group input:focus + label,
+.input-group input:valid + label {
+    top: -12px;
+    font-size: 12px;
+    color: #f7c600;
+}
+
+/* BOTÓN */
+button {
+    width: 100%;
+    padding: 10px;
+    background: #f7c600;
+    border: none;
+    color: black;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+button:hover {
+    background: #ffd633;
+}
+
+/* LINKS */
+.extra {
+    margin-top: 15px;
+    font-size: 14px;
+}
+
+a {
+    font-size: 14px;
+    color: #f7c600;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* MENSAJES */
+.mensaje {
+    margin-top: 10px;
+}
+
+.mensaje.error {
+    color: red;
+}
+
+.mensaje.exito {
+    color: green;
+}
