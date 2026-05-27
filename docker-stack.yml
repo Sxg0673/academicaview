@@ -3,87 +3,96 @@ version: '3.8'
 services:
 
   mysql:
-    build: ./mysql
     image: academicaview/mysql:latest
-    container_name: mysql
     environment:
       MYSQL_ROOT_PASSWORD: academica123
       MYSQL_DATABASE: academicaview
     ports:
-      - "3306:3306"
+      - target: 3306
+        published: 3306
+        mode: host
     volumes:
       - mysql_data:/var/lib/mysql
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-pacademica123"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
     networks:
       - academicaview-net
 
   ms-usuarios:
-    build: ./backend/ms-usuarios
     image: academicaview/ms-usuarios:latest
-    container_name: ms-usuarios
     ports:
-      - "3001:3001"
+      - target: 3001
+        published: 3001
+        mode: host
     environment:
       DB_HOST: mysql
       DB_USER: root
       DB_PASSWORD: academica123
       DB_NAME: academicaview
-    depends_on:
-      mysql:
-        condition: service_healthy
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
     networks:
       - academicaview-net
 
   ms-estudiantes:
-    build: ./backend/ms-estudiantes
     image: academicaview/ms-estudiantes:latest
-    container_name: ms-estudiantes
     ports:
-      - "3002:3002"
+      - target: 3002
+        published: 3002
+        mode: host
     environment:
       DB_HOST: mysql
       DB_USER: root
       DB_PASSWORD: academica123
       DB_NAME: academicaview
-    depends_on:
-      mysql:
-        condition: service_healthy
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
     networks:
       - academicaview-net
 
   ms-analitica:
-    build: ./backend/ms-analitica
     image: academicaview/ms-analitica:latest
-    container_name: ms-analitica
     ports:
-      - "3003:3003"
+      - target: 3003
+        published: 3003
+        mode: host
     environment:
       DB_HOST: mysql
       DB_USER: root
       DB_PASSWORD: academica123
       DB_NAME: academicaview
-    depends_on:
-      mysql:
-        condition: service_healthy
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
     networks:
       - academicaview-net
 
   frontend:
-    build: ./frontend
     image: academicaview/frontend:latest
-    container_name: frontend
     ports:
-      - "8080:80"
+      - target: 80
+        published: 8080
+        mode: host
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
     networks:
       - academicaview-net
 
 networks:
   academicaview-net:
-    driver: bridge
+    driver: overlay
 
 volumes:
   mysql_data:
