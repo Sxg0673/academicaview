@@ -153,3 +153,4 @@ npm-debug.log
 
 # OS
 .DS_Store
+pyspark/jars/
