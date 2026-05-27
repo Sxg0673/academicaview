@@ -189,3 +189,37 @@ El archivo `data/seed_estudiantes.sql` contiene 30 registros reales anonimizados
 ## Repositorio
 
 [github.com/Sxg0673/academicaview](https://github.com/Sxg0673/academicaview)
+
+---
+
+## Docker y PySpark
+
+### Requisitos previos
+Descargar los JARs necesarios para conectar PySpark con MinIO:
+
+```bash
+cd pyspark/jars
+wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/3.3.4/hadoop-aws-3.3.4.jar
+wget https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-bundle/1.12.262/aws-java-sdk-bundle-1.12.262.jar
+cd ../..
+```
+
+### Levantar con Docker Compose (desarrollo)
+```bash
+docker compose build
+docker compose up -d
+```
+
+### Levantar con Docker Swarm (producción)
+```bash
+docker swarm init
+docker stack deploy -c docker-stack.yml academicaview
+```
+
+### Credenciales
+| Servicio | Usuario | Contraseña |
+|----------|---------|------------|
+| Profesor | profesor@academicaview.edu | profesor123 |
+| Estudiante | carlos.mendoza@academicaview.edu | estudiante123 |
+| MinIO | admin | password123 |
+| MySQL | root | academica123 |
