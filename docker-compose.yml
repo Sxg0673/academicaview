@@ -1,0 +1,86 @@
+version: '3.8'
+
+services:
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: academica123
+      MYSQL_DATABASE: academicaview
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./data/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./data/seed_estudiantes.sql:/docker-entrypoint-initdb.d/02-seed.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-pacademica123"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - academicaview-net
+
+  ms-usuarios:
+    build: ./backend/ms-usuarios
+    container_name: ms-usuarios
+    ports:
+      - "3001:3001"
+    environment:
+      DB_HOST: mysql
+      DB_USER: root
+      DB_PASSWORD: academica123
+      DB_NAME: academicaview
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - academicaview-net
+
+  ms-estudiantes:
+    build: ./backend/ms-estudiantes
+    container_name: ms-estudiantes
+    ports:
+      - "3002:3002"
+    environment:
+      DB_HOST: mysql
+      DB_USER: root
+      DB_PASSWORD: academica123
+      DB_NAME: academicaview
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - academicaview-net
+
+  ms-analitica:
+    build: ./backend/ms-analitica
+    container_name: ms-analitica
+    ports:
+      - "3003:3003"
+    environment:
+      DB_HOST: mysql
+      DB_USER: root
+      DB_PASSWORD: academica123
+      DB_NAME: academicaview
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - academicaview-net
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    ports:
+      - "80:80"
+    networks:
+      - academicaview-net
+
+networks:
+  academicaview-net:
+    driver: bridge
+
+volumes:
+  mysql_data:

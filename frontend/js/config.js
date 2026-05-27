@@ -1,5 +1,5 @@
 const CONFIG = {
-  API_USUARIOS:    'http://192.168.100.3:3001',
-  API_ESTUDIANTES: 'http://192.168.100.3:3002',
-  API_ANALITICA:   'http://192.168.100.3:3003'
+  API_USUARIOS:    'https://effective-fortnight-7v54qvr75gg93p44r-3001.app.github.dev',
+  API_ESTUDIANTES: 'https://effective-fortnight-7v54qvr75gg93p44r-3002.app.github.dev',
+  API_ANALITICA:   'https://effective-fortnight-7v54qvr75gg93p44r-3003.app.github.dev'
 };

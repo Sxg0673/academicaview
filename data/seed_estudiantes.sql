@@ -64,3 +64,4 @@ INSERT INTO estudiantes (usuario_id, nombre, apellido, email, horas_estudio, pro
   (28, 'Ana', 'Guerrero', 'ana.guerrero@academicaview.edu', 13.18, 7.86, 5.73, 'Virtual', 75.36, 3.67, 126.3),
   (29, 'Jorge', 'Munoz', 'jorge.munoz@academicaview.edu', 13.55, 7.64, 5.63, 'Presencial', 81.88, 2.29, 137.93),
   (30, 'Carolina', 'Delgado', 'carolina.delgado@academicaview.edu', 20.11, 9.55, 5.77, 'Virtual', 88.39, 3.63, 153.78);
+INSERT INTO usuarios (nombre, apellido, email, password, rol) VALUES ('Profesor', 'Admin', 'profesor@academicaview.edu', 'profesor123', 'profesor');
