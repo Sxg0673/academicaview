@@ -1,0 +1,12 @@
+{
+  "name": "AcademicaView",
+  "forwardPorts": [8080, 3001, 3002, 3003, 8888, 9000, 9001],
+  "portsAttributes": {
+    "8080": { "label": "Frontend", "onAutoForward": "openBrowser" },
+    "3001": { "label": "MS-Usuarios", "onAutoForward": "silent" },
+    "3002": { "label": "MS-Estudiantes", "onAutoForward": "silent" },
+    "3003": { "label": "MS-Analitica", "onAutoForward": "silent" },
+    "8888": { "label": "Jupyter", "onAutoForward": "silent" },
+    "9001": { "label": "MinIO", "onAutoForward": "silent" }
+  }
+}
